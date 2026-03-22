@@ -1,65 +1,30 @@
-# 🏫 Projeto Cantina FATEC
+# Projeto Cantina Fatec 2026
 
-## Descrição
+Este projeto foi desenvolvido para as disciplinas de Linguagem de Programação II e Estrutura de Dados (Projeto I), no curso de Inteligência Artificial da Fatec Rio Claro/SP.
+O objetivo é criar um sistema simples de gerenciamento para nossa cantina, que atende os alunos dos cursos de IA e ESG, além de professores e colaboradores da instituição.
 
-Este projeto foi desenvolvido para as disciplinas de **Estrutura de Dados** e **Linguagem de Programação 2**.
+## Objetivo do sistema
 
-O objetivo é simular o funcionamento de uma cantina acadêmica, controlando:
+O sistema tem como finalidade organizar e controlar as principais operações da cantina, utilizando conceitos de programação orientada a objetos e estruturas de dados.
+Entre as funcionalidades previstas estão:
+* Controle de estoque de produtos
+* Registro e controle de pagamentos
+* Controle do consumo
+* Geração de dados para testes (utilizando a biblioteca Faker)
+* Armazenamento de dados (utilizando a biblioteca Pickle)
+* Geração de relatórios de vendas e consumo
 
-* estoque de produtos
-* vendas
-* pagamentos
-* consumo dos alunos
+## Estrutura do projeto
 
----
+ainda sendo feita
 
-## 🧠 Conceitos utilizados
+## Execução do projeto
 
-Durante o desenvolvimento foram aplicados os seguintes conceitos:
+ainda sendo feita
 
-* Programação Orientada a Objetos (POO)
-* Classes e Objetos
-* Atributos e Métodos
-* Encapsulamento
-* Estruturas de Dados (listas)
-* Algoritmos (busca e controle de estoque)
+## Considerações
 
----
+Este projeto faz parte do processo de aprendizagem e está em constante evolução, sendo desenvolvido ao longo da disciplina com entregas incrementais via GitHub.
+Apesar de ser um sistema simples, esta sendo bem dificil, :(
 
-## 📦 Estrutura do Projeto
 
-* `produto.py` → Classe que representa os produtos da cantina
-* `estoque.py` → Controle de estoque e vendas
-* `cantina_fatec.py` → Arquivo principal do sistema
-
----
-
-## ⚙️ Funcionalidades
-
-* Cadastro de produtos
-* Controle de quantidade em estoque
-* Venda de produtos
-* Atualização automática do estoque
-* Exibição dos produtos disponíveis
-
----
-
-## 🧪 Exemplo de uso
-
-O sistema permite simular uma venda:
-
-* Um produto é selecionado
-* O estoque é atualizado
-* A venda é registrada
-
----
-
-## 🚀 Tecnologias utilizadas
-
-* Python
-
----
-
-## 👩‍💻 Autora
-
-Projeto desenvolvido por **Natália Thomazelli Ferreira**
