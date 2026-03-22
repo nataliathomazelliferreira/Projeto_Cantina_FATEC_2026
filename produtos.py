@@ -1,5 +1,5 @@
-from produto import Produto
-from estoque import Estoque
+from controle_produto import Produto
+from controle_estoque import Estoque
 
 # Criando o estoque
 estoque = Estoque()
