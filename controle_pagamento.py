@@ -1,5 +1,4 @@
-# QUESTÃO 2 
-
+#QUESTÃO 2
 from datetime import datetime
 
 class Pessoa:
@@ -15,12 +14,15 @@ class Pessoa:
 class Pagamento:
     def __init__(self, pessoa, valor):
         self.pessoa = pessoa
-        self.valor = valor
+        self._valor = valor
         self.data_hora = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+    def get_valor(self):
+        return self._valor
 
     def __str__(self):
         return (f"👤 {self.pessoa} | "
-                f"💰 R${self.valor:.2f} | "
+                f"💰 R${self._valor:.2f} | "
                 f"🕐 {self.data_hora}")
 
 
@@ -41,25 +43,25 @@ class PilhaPagamentos:
         novo_no.abaixo = self.topo
         self.topo = novo_no
         self.tamanho += 1
-        self.total_arrecadado += pagamento.valor
+        self.total_arrecadado += pagamento.get_valor()
         print(f"✅ Pagamento registrado: {pagamento}")
 
     def desempilhar(self):
         if self.topo is None:
-            print("⚠️  Nenhum pagamento registrado.")
+            print("⚠️ Nenhum pagamento registrado.")
             return None
 
         pagamento_removido = self.topo.pagamento
         self.topo = self.topo.abaixo
         self.tamanho -= 1
-        self.total_arrecadado -= pagamento_removido.valor
+        self.total_arrecadado -= pagamento_removido.get_valor()
 
-        print(f"↩️  Pagamento removido: {pagamento_removido}")
+        print(f"↩️ Pagamento removido: {pagamento_removido}")
         return pagamento_removido
 
     def espiar(self):
         if self.topo is None:
-            print("⚠️  Pilha vazia.")
+            print("⚠️ Pilha vazia.")
             return None
 
         return self.topo.pagamento
@@ -69,33 +71,33 @@ class PilhaPagamentos:
         print("-" * 70)
 
         if self.topo is None:
-            print("   Nenhum pagamento registrado.")
+            print("Nenhum pagamento registrado.")
             return
 
         atual = self.topo
         posicao = 1
 
         while atual is not None:
-            print(f"  [{posicao}] {atual.pagamento}")
+            print(f"[{posicao}] {atual.pagamento}")
             atual = atual.abaixo
             posicao += 1
 
         print("-" * 70)
-        print(f"  Total de pagamentos: {self.tamanho}")
-        print(f"  Total arrecadado:    R${self.total_arrecadado:.2f}")
+        print(f"Total de pagamentos: {self.tamanho}")
+        print(f"Total arrecadado: R${self.total_arrecadado:.2f}")
 
 
 if __name__ == "__main__":
 
     print("=" * 70)
-    print("       QUESTÃO 2 – CONTROLE DE PAGAMENTO – CANTINA FATEC")
+    print("QUESTÃO 2 – CONTROLE DE PAGAMENTO")
     print("=" * 70)
 
-    pessoa1 = Pessoa("Vladimir",       "aluno",     "IA")
-    pessoa2 = Pessoa("Orlando The Best",   "professor", "ESG")
-    pessoa3 = Pessoa("Debora", "aluno",     "IA")
-    pessoa4 = Pessoa("Natalia",  "aluno", "IA")
-    pessoa5 = Pessoa("Luan",    "servidor",  "IA")
+    pessoa1 = Pessoa("Vladimir", "aluno", "IA")
+    pessoa2 = Pessoa("Orlando The Best", "professor", "ESG")
+    pessoa3 = Pessoa("Debora", "aluno", "IA")
+    pessoa4 = Pessoa("Natalia", "aluno", "IA")
+    pessoa5 = Pessoa("Luan", "servidor", "IA")
 
     pag1 = Pagamento(pessoa1, 3.00)
     pag2 = Pagamento(pessoa2, 1.50)
@@ -105,7 +107,6 @@ if __name__ == "__main__":
 
     pilha = PilhaPagamentos()
 
-    print("\n📥 Registrando pagamentos...\n")
     pilha.empilhar(pag1)
     pilha.empilhar(pag2)
     pilha.empilhar(pag3)
@@ -114,9 +115,8 @@ if __name__ == "__main__":
 
     pilha.exibir()
 
-    print(f"\n🔍 Último pagamento registrado (topo): {pilha.espiar()}")
+    print(f"\nÚltimo pagamento: {pilha.espiar()}")
 
-    print("\n↩️  Estornando o último pagamento...")
     pilha.desempilhar()
 
     pilha.exibir()
