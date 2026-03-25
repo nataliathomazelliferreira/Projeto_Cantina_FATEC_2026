@@ -1,3 +1,4 @@
+#QUESTÃO 2
 class Produto:
     def __init__(self, nome, preco_compra, preco_venda, data_compra, data_vencimento, quantidade):
         self.nome = nome
@@ -130,14 +131,14 @@ if __name__ == "__main__":
     print("QUESTÃO 1 – CONTROLE DE ESTOQUE")
     print("=" * 75)
 
-    p1 = Produto("Água com gás do Orlando", 2.50, 3.50, "13/03/2026", "25/03/2027", 12)
-    p2 = Produto("Coca 200ml",              2.00, 3.00, "13/03/2026", "22/03/2027", 12)
-    p3 = Produto("Coca Zero 200ml",         2.00, 3.00, "13/03/2026", "22/03/2027", 12)
+    p1 = Produto("Água com gás do Orlando", 2.50, 3.50, "13/03/2026", "25/03/2027", 20)
+    p2 = Produto("Coca 200ml",              2.00, 3.00, "13/03/2026", "22/03/2027", 25)
+    p3 = Produto("Coca Zero 200ml",         2.00, 3.00, "13/03/2026", "22/03/2027", 25)
     p4 = Produto("Água normal",             2.00, 3.00, "13/03/2026", "28/03/2027", 12)
-    p5 = Produto("Amendoim",                2.00, 3.00, "12/03/2026", "10/04/2027",  6)
-    p6 = Produto("Torcida",                 2.00, 3.00, "12/03/2026", "05/04/2027", 10)
+    p5 = Produto("Amendoim",                2.00, 3.00, "12/03/2026", "10/04/2027", 25)
+    p6 = Produto("Torcida",                 2.00, 3.00, "12/03/2026", "05/04/2027", 30)
     p7 = Produto("Bonbon",                  1.00, 1.50, "10/03/2026", "30/12/2026", 40)
-    p8 = Produto("Pão de Mel Bauduco",      2.00, 3.00, "11/03/2026", "20/12/2026", 12)
+    p8 = Produto("Pão de Mel Bauduco",      2.00, 3.00, "11/03/2026", "20/12/2026", 20)
 
     estoque = ListaEstoque()
 
