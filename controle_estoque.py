@@ -1,6 +1,3 @@
-
-# QUESTÃO 1
-
 class Produto:
     def __init__(self, nome, preco_compra, preco_venda, data_compra, data_vencimento, quantidade):
         self.nome = nome
@@ -8,7 +5,13 @@ class Produto:
         self.preco_venda = preco_venda
         self.data_compra = data_compra
         self.data_vencimento = data_vencimento
-        self.quantidade = quantidade
+        self._quantidade = quantidade  
+
+    def get_quantidade(self):
+        return self._quantidade
+
+    def set_quantidade(self, nova_quantidade):
+        self._quantidade = nova_quantidade
 
     def __str__(self):
         return (f"Produto: {self.nome} | "
@@ -16,12 +19,14 @@ class Produto:
                 f"Venda: R${self.preco_venda:.2f} | "
                 f"Comprado em: {self.data_compra} | "
                 f"Vence em: {self.data_vencimento} | "
-                f"Qtd: {self.quantidade}")
+                f"Qtd: {self._quantidade}")
+
 
 class No:
     def __init__(self, produto):
         self.produto = produto
         self.proximo = None
+
 
 class ListaEstoque:
     def __init__(self):
@@ -31,7 +36,7 @@ class ListaEstoque:
     def _converter_data(self, data_str):
         partes = data_str.split("/")
         return (int(partes[2]), int(partes[1]), int(partes[0]))
- 
+
     def inserir_ordenado(self, produto):
         novo_no = No(produto)
         data_novo = self._converter_data(produto.data_vencimento)
@@ -43,18 +48,18 @@ class ListaEstoque:
 
         data_cabeca = self._converter_data(self.cabeca.produto.data_vencimento)
         if data_novo < data_cabeca:
-            novo_no.proximo = self.cabeca  
-            self.cabeca = novo_no          
+            novo_no.proximo = self.cabeca
+            self.cabeca = novo_no
             self.tamanho += 1
             return
 
-        atual = self.cabeca 
+        atual = self.cabeca
         while atual.proximo is not None:
             data_proximo = self._converter_data(atual.proximo.produto.data_vencimento)
 
             if data_novo < data_proximo:
-                novo_no.proximo = atual.proximo 
-                atual.proximo = novo_no          
+                novo_no.proximo = atual.proximo
+                atual.proximo = novo_no
                 self.tamanho += 1
                 return
 
@@ -64,62 +69,65 @@ class ListaEstoque:
         self.tamanho += 1
 
     def buscar(self, nome):
-        atual = self.cabeca 
+        atual = self.cabeca
 
-        while atual is not None:  
+        while atual is not None:
             if atual.produto.nome.lower() == nome.lower():
-                return atual 
+                return atual
             atual = atual.proximo
 
         return None
 
     def atualizar_quantidade(self, nome, nova_quantidade):
-        no = self.buscar(nome)  
+        no = self.buscar(nome)
 
-        if no is not None: 
-            no.produto.quantidade = nova_quantidade  
+        if no is not None:
+            no.produto.set_quantidade(nova_quantidade)
             print(f"✅ Quantidade de '{nome}' atualizada para {nova_quantidade}.")
         else:
             print(f"❌ Produto '{nome}' não encontrado no estoque.")
 
     def dar_baixa(self, nome, quantidade_vendida):
-        no = self.buscar(nome)  
+        no = self.buscar(nome)
 
         if no is None:
             print(f"❌ Produto '{nome}' não encontrado.")
             return False
 
-        if no.produto.quantidade < quantidade_vendida:
-            print(f"⚠️  Estoque insuficiente para '{nome}'. Disponível: {no.produto.quantidade}")
+        if no.produto.get_quantidade() < quantidade_vendida:
+            print(f"⚠️ Estoque insuficiente para '{nome}'. Disponível: {no.produto.get_quantidade()}")
             return False
 
-        no.produto.quantidade -= quantidade_vendida
-        print(f"✅ Baixa de {quantidade_vendida} unidade(s) de '{nome}'. Restam: {no.produto.quantidade}")
+        nova_qtd = no.produto.get_quantidade() - quantidade_vendida
+        no.produto.set_quantidade(nova_qtd)
+
+        print(f"✅ Baixa de {quantidade_vendida} unidade(s) de '{nome}'. Restam: {nova_qtd}")
         return True
 
     def exibir(self):
-        print("\n📦 ESTOQUE ATUAL (ordem de prioridade — vence primeiro, vende primeiro):")
+        print("\n📦 ESTOQUE ATUAL (vence primeiro, vende primeiro):")
         print("-" * 75)
 
-        if self.cabeca is None:  
+        if self.cabeca is None:
             print("   Estoque vazio.")
             return
 
-        atual = self.cabeca 
-        posicao = 1         
+        atual = self.cabeca
+        posicao = 1
 
-        while atual is not None:  
-            print(f"  [{posicao}] {atual.produto}")  
-            atual = atual.proximo                    
+        while atual is not None:
+            print(f"[{posicao}] {atual.produto}")
+            atual = atual.proximo
             posicao += 1
 
         print("-" * 75)
-        print(f"  Total de produtos cadastrados: {self.tamanho}")
+        print(f"Total de produtos: {self.tamanho}")
+
 
 if __name__ == "__main__":
 
     print("=" * 75)
-    print("         QUESTÃO 1 – CONTROLE DE ESTOQUE – CANTINA FATEC")
+    print("QUESTÃO 1 – CONTROLE DE ESTOQUE")
     print("=" * 75)
 
     p1 = Produto("Água com gás do Orlando", 2.50, 3.50, "13/03/2026", "25/03/2027", 12)
@@ -144,13 +152,13 @@ if __name__ == "__main__":
 
     estoque.exibir()
 
-    print("\n🛒 Simulando venda de 3x Bonbon...")
+    print("\n🛒 Venda de 3 Bonbons:")
     estoque.dar_baixa("Bonbon", 3)
 
-    print("\n✏️  Atualizando quantidade de Amendoim para 20...")
+    print("\n✏️ Atualizando Amendoim para 20:")
     estoque.atualizar_quantidade("Amendoim", 20)
 
-    print("\n🛒 Tentando vender 100x Torcida (mais do que existe)...")
+    print("\n🛒 Tentando vender 100 Torcidas:")
     estoque.dar_baixa("Torcida", 100)
 
     estoque.exibir()
