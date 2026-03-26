@@ -203,4 +203,4 @@ if __name__ == "__main__":
     pagamentos.exibir()
 
     print("\nDados gerados com sucesso!")
-    print("Execute questao5.py para salvar esses dados em disco.")
+    print("Execute salvar_dados.py para salvar esses dados em disco.")

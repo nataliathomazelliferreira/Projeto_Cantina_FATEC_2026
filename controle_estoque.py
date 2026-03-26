@@ -1,4 +1,9 @@
 #questão 1
+#modelo para criar objetos = classe
+#init é o construtor, chamado, automaticamente quando voce cria um produto
+#atributos começam com __, privados encapsulamento
+#gerenciar produtos garantindo que os mais antigos sejam vendidos primeiro
+
 class Produto:
     def __init__(self, nome, preco_compra, preco_venda, data_compra, data_vencimento, quantidade):
         self.__nome            = nome
@@ -7,14 +12,16 @@ class Produto:
         self.__data_compra     = data_compra
         self.__data_vencimento = data_vencimento
         self.__quantidade      = quantidade
-
+#permite ler os atributos privados de fora da classe
+#get e set são janelas. get permite que voce espie o valor e
+#set permite que voce altere, não aceitar quantidades negativa
     def get_nome(self):            return self.__nome
     def get_preco_compra(self):    return self.__preco_compra
     def get_preco_venda(self):     return self.__preco_venda
     def get_data_compra(self):     return self.__data_compra
     def get_data_vencimento(self): return self.__data_vencimento
     def get_quantidade(self):      return self.__quantidade
-
+#alterar valores de atributos privados
     def set_quantidade(self, nova):
         if nova < 0:
             raise ValueError("Quantidade não pode ser negativa.")
@@ -24,7 +31,8 @@ class Produto:
         if novo <= 0:
             raise ValueError("Preço de venda deve ser positivo.")
         self.__preco_venda = novo
-
+#como o objeto sera exibido quando eu print
+#sem ele o python mostraria um codigo estranho
     def __str__(self):
         return (f"Produto: {self.__nome:<30} | "
                 f"Compra: R${self.__preco_compra:>5.2f} | "
@@ -33,7 +41,9 @@ class Produto:
                 f"Vence em: {self.__data_vencimento} | "
                 f"Qtd: {self.__quantidade}")
 
-
+# classe nó
+#um espaço para carregar o produto
+#um gancho chamado proximo que aponta pro proximo nó
 class _No:
     def __init__(self, produto):
         self.produto = produto
@@ -46,10 +56,12 @@ class ListaEstoque:
         self.__tamanho = 0
 
     def __converter_data(self, data_str):
-        d, m, a = data_str.split("/")
+        d, m, a = data_str.split("/") #corta nas barras, transformando em dia mes e ano
         return (int(a), int(m), int(d))
 
-    # 🔥 AGORA ORDENA POR DATA DE COMPRA (produto mais velho primeiro)
+   #ordenar por data de compra, mais velho primeito
+  #none representa o vazio, se o proximo de um nó é none, significa que a corrente acabou ali
+
     def inserir_ordenado(self, produto):
         novo_no   = _No(produto)
         data_novo = self.__converter_data(produto.get_data_compra())
@@ -64,7 +76,7 @@ class ListaEstoque:
             self.__cabeca   = novo_no
             self.__tamanho += 1
             return
-
+#enquanto houver um elo na corrente, continue caminhando para o proximo
         atual = self.__cabeca
         while atual.proximo is not None:
             if data_novo < self.__converter_data(atual.proximo.produto.get_data_compra()):
@@ -77,7 +89,7 @@ class ListaEstoque:
         atual.proximo   = novo_no
         self.__tamanho += 1
 
-    # 🔥 AGORA RETORNA O PRODUTO
+
     def buscar(self, nome):
         atual = self.__cabeca
         while atual is not None:
@@ -86,7 +98,7 @@ class ListaEstoque:
             atual = atual.proximo
         return None
 
-    # ✔️ EDITAR QUANTIDADE (isso atende o requisito)
+    # EDITAR QUANTIDADE (isso atende o requisito)
     def atualizar_quantidade(self, nome, nova_quantidade):
         produto = self.buscar(nome)
         if produto is not None:
@@ -95,7 +107,7 @@ class ListaEstoque:
         else:
             print(f"Produto '{nome}' nao encontrado no estoque.")
 
-    # 🔥 VENDA CORRETA (PEGA O MAIS ANTIGO PRIMEIRO)
+    # VENDA CORRETA (PEGA O MAIS ANTIGO PRIMEIRO)
     def dar_baixa(self, nome, quantidade_vendida):
         atual = self.__cabeca
 
