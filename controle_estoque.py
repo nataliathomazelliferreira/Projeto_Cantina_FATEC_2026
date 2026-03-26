@@ -1,29 +1,40 @@
-#QUESTÃO 2
+#questão 1
 class Produto:
     def __init__(self, nome, preco_compra, preco_venda, data_compra, data_vencimento, quantidade):
-        self.nome = nome
-        self.preco_compra = preco_compra
-        self.preco_venda = preco_venda
-        self.data_compra = data_compra
-        self.data_vencimento = data_vencimento
-        self._quantidade = quantidade  
+        self.__nome            = nome
+        self.__preco_compra    = preco_compra
+        self.__preco_venda     = preco_venda
+        self.__data_compra     = data_compra
+        self.__data_vencimento = data_vencimento
+        self.__quantidade      = quantidade
 
-    def get_quantidade(self):
-        return self._quantidade
+    def get_nome(self):            return self.__nome
+    def get_preco_compra(self):    return self.__preco_compra
+    def get_preco_venda(self):     return self.__preco_venda
+    def get_data_compra(self):     return self.__data_compra
+    def get_data_vencimento(self): return self.__data_vencimento
+    def get_quantidade(self):      return self.__quantidade
 
-    def set_quantidade(self, nova_quantidade):
-        self._quantidade = nova_quantidade
+    def set_quantidade(self, nova):
+        if nova < 0:
+            raise ValueError("Quantidade não pode ser negativa.")
+        self.__quantidade = nova
+
+    def set_preco_venda(self, novo):
+        if novo <= 0:
+            raise ValueError("Preço de venda deve ser positivo.")
+        self.__preco_venda = novo
 
     def __str__(self):
-        return (f"Produto: {self.nome} | "
-                f"Compra: R${self.preco_compra:.2f} | "
-                f"Venda: R${self.preco_venda:.2f} | "
-                f"Comprado em: {self.data_compra} | "
-                f"Vence em: {self.data_vencimento} | "
-                f"Qtd: {self._quantidade}")
+        return (f"Produto: {self.__nome:<30} | "
+                f"Compra: R${self.__preco_compra:>5.2f} | "
+                f"Venda: R${self.__preco_venda:>5.2f} | "
+                f"Comprado em: {self.__data_compra} | "
+                f"Vence em: {self.__data_vencimento} | "
+                f"Qtd: {self.__quantidade}")
 
 
-class No:
+class _No:
     def __init__(self, produto):
         self.produto = produto
         self.proximo = None
@@ -31,135 +42,131 @@ class No:
 
 class ListaEstoque:
     def __init__(self):
-        self.cabeca = None
-        self.tamanho = 0
+        self.__cabeca  = None
+        self.__tamanho = 0
 
-    def _converter_data(self, data_str):
-        partes = data_str.split("/")
-        return (int(partes[2]), int(partes[1]), int(partes[0]))
+    def __converter_data(self, data_str):
+        d, m, a = data_str.split("/")
+        return (int(a), int(m), int(d))
 
+    # 🔥 AGORA ORDENA POR DATA DE COMPRA (produto mais velho primeiro)
     def inserir_ordenado(self, produto):
-        novo_no = No(produto)
-        data_novo = self._converter_data(produto.data_vencimento)
+        novo_no   = _No(produto)
+        data_novo = self.__converter_data(produto.get_data_compra())
 
-        if self.cabeca is None:
-            self.cabeca = novo_no
-            self.tamanho += 1
+        if self.__cabeca is None:
+            self.__cabeca = novo_no
+            self.__tamanho += 1
             return
 
-        data_cabeca = self._converter_data(self.cabeca.produto.data_vencimento)
-        if data_novo < data_cabeca:
-            novo_no.proximo = self.cabeca
-            self.cabeca = novo_no
-            self.tamanho += 1
+        if data_novo < self.__converter_data(self.__cabeca.produto.get_data_compra()):
+            novo_no.proximo = self.__cabeca
+            self.__cabeca   = novo_no
+            self.__tamanho += 1
             return
 
-        atual = self.cabeca
+        atual = self.__cabeca
         while atual.proximo is not None:
-            data_proximo = self._converter_data(atual.proximo.produto.data_vencimento)
-
-            if data_novo < data_proximo:
+            if data_novo < self.__converter_data(atual.proximo.produto.get_data_compra()):
                 novo_no.proximo = atual.proximo
-                atual.proximo = novo_no
-                self.tamanho += 1
+                atual.proximo   = novo_no
+                self.__tamanho += 1
                 return
-
             atual = atual.proximo
 
-        atual.proximo = novo_no
-        self.tamanho += 1
+        atual.proximo   = novo_no
+        self.__tamanho += 1
 
+    # 🔥 AGORA RETORNA O PRODUTO
     def buscar(self, nome):
-        atual = self.cabeca
-
+        atual = self.__cabeca
         while atual is not None:
-            if atual.produto.nome.lower() == nome.lower():
-                return atual
+            if atual.produto.get_nome().lower() == nome.lower():
+                return atual.produto
             atual = atual.proximo
-
         return None
 
+    # ✔️ EDITAR QUANTIDADE (isso atende o requisito)
     def atualizar_quantidade(self, nome, nova_quantidade):
-        no = self.buscar(nome)
-
-        if no is not None:
-            no.produto.set_quantidade(nova_quantidade)
-            print(f"✅ Quantidade de '{nome}' atualizada para {nova_quantidade}.")
+        produto = self.buscar(nome)
+        if produto is not None:
+            produto.set_quantidade(nova_quantidade)
+            print(f"Quantidade de '{nome}' atualizada para {nova_quantidade}.")
         else:
-            print(f"❌ Produto '{nome}' não encontrado no estoque.")
+            print(f"Produto '{nome}' nao encontrado no estoque.")
 
+    # 🔥 VENDA CORRETA (PEGA O MAIS ANTIGO PRIMEIRO)
     def dar_baixa(self, nome, quantidade_vendida):
-        no = self.buscar(nome)
-
-        if no is None:
-            print(f"❌ Produto '{nome}' não encontrado.")
-            return False
-
-        if no.produto.get_quantidade() < quantidade_vendida:
-            print(f"⚠️ Estoque insuficiente para '{nome}'. Disponível: {no.produto.get_quantidade()}")
-            return False
-
-        nova_qtd = no.produto.get_quantidade() - quantidade_vendida
-        no.produto.set_quantidade(nova_qtd)
-
-        print(f"✅ Baixa de {quantidade_vendida} unidade(s) de '{nome}'. Restam: {nova_qtd}")
-        return True
-
-    def exibir(self):
-        print("\n📦 ESTOQUE ATUAL (vence primeiro, vende primeiro):")
-        print("-" * 75)
-
-        if self.cabeca is None:
-            print("   Estoque vazio.")
-            return
-
-        atual = self.cabeca
-        posicao = 1
+        atual = self.__cabeca
 
         while atual is not None:
-            print(f"[{posicao}] {atual.produto}")
-            atual = atual.proximo
-            posicao += 1
+            produto = atual.produto
 
-        print("-" * 75)
-        print(f"Total de produtos: {self.tamanho}")
+            if produto.get_nome().lower() == nome.lower():
+                if produto.get_quantidade() >= quantidade_vendida:
+                    produto.set_quantidade(produto.get_quantidade() - quantidade_vendida)
+                    print(f"Baixa de {quantidade_vendida} unidade(s) de '{nome}'. Restam: {produto.get_quantidade()}")
+                    return True
+                else:
+                    print(f"Estoque insuficiente no lote mais antigo de '{nome}'.")
+                    return False
+
+            atual = atual.proximo
+
+        print(f"Produto '{nome}' nao encontrado.")
+        return False
+
+    def get_tamanho(self):
+        return self.__tamanho
+
+    def calcular_valor_estoque(self):
+        total_custo = 0.0
+        total_venda = 0.0
+        atual = self.__cabeca
+        while atual:
+            p = atual.produto
+            total_custo += p.get_preco_compra() * p.get_quantidade()
+            total_venda += p.get_preco_venda()  * p.get_quantidade()
+            atual = atual.proximo
+        return total_custo, total_venda
+
+    def exibir(self):
+        print("\nESTOQUE ATUAL (mais antigo primeiro):")
+        print("-" * 90)
+        if self.__cabeca is None:
+            print("   Estoque vazio.")
+        else:
+            atual   = self.__cabeca
+            posicao = 1
+            while atual is not None:
+                print(f"[{posicao:02d}] {atual.produto}")
+                atual   = atual.proximo
+                posicao += 1
+        print("-" * 90)
+        custo, venda = self.calcular_valor_estoque()
+        print(f"Total de itens: {self.__tamanho} | "
+              f"Valor custo: R${custo:.2f} | Valor venda: R${venda:.2f}")
 
 
 if __name__ == "__main__":
 
-    print("=" * 75)
-    print("QUESTÃO 1 – CONTROLE DE ESTOQUE")
-    print("=" * 75)
+    print("=" * 90)
+    print("QUESTAO 1 - CONTROLE DE ESTOQUE")
+    print("=" * 90)
 
-    p1 = Produto("Água com gás do Orlando", 2.50, 3.50, "13/03/2026", "25/03/2027", 20)
-    p2 = Produto("Coca 200ml",              2.00, 3.00, "13/03/2026", "22/03/2027", 25)
-    p3 = Produto("Coca Zero 200ml",         2.00, 3.00, "13/03/2026", "22/03/2027", 25)
-    p4 = Produto("Água normal",             2.00, 3.00, "13/03/2026", "28/03/2027", 12)
-    p5 = Produto("Amendoim",                2.00, 3.00, "12/03/2026", "10/04/2027", 25)
-    p6 = Produto("Torcida",                 2.00, 3.00, "12/03/2026", "05/04/2027", 30)
-    p7 = Produto("Bonbon",                  1.00, 1.50, "10/03/2026", "30/12/2026", 40)
-    p8 = Produto("Pão de Mel Bauduco",      2.00, 3.00, "11/03/2026", "20/12/2026", 20)
+    p1 = Produto("Agua", 2.50, 3.50, "10/03/2026", "25/03/2027", 20)
+    p2 = Produto("Agua", 2.50, 3.50, "15/03/2026", "25/03/2027", 10)  # mais novo
 
     estoque = ListaEstoque()
-
     estoque.inserir_ordenado(p1)
     estoque.inserir_ordenado(p2)
-    estoque.inserir_ordenado(p3)
-    estoque.inserir_ordenado(p4)
-    estoque.inserir_ordenado(p5)
-    estoque.inserir_ordenado(p6)
-    estoque.inserir_ordenado(p7)
-    estoque.inserir_ordenado(p8)
 
     estoque.exibir()
 
-    print("\n🛒 Venda de 3 Bonbons:")
-    estoque.dar_baixa("Bonbon", 3)
+    print("\nVenda de 5 Aguas (deve sair do mais antigo):")
+    estoque.dar_baixa("Agua", 5)
 
-    print("\n✏️ Atualizando Amendoim para 20:")
-    estoque.atualizar_quantidade("Amendoim", 20)
-
-    print("\n🛒 Tentando vender 100 Torcidas:")
-    estoque.dar_baixa("Torcida", 100)
+    print("\nAtualizando quantidade:")
+    estoque.atualizar_quantidade("Agua", 50)
 
     estoque.exibir()

@@ -1,32 +1,42 @@
-#QUESTÃO 2
+#questão 2
 from datetime import datetime
+
 
 class Pessoa:
     def __init__(self, nome, categoria, curso):
-        self.nome = nome
-        self.categoria = categoria
-        self.curso = curso
+        self.__nome = nome
+        self.__categoria = categoria
+        self.__curso = curso
+
+    def get_nome(self): return self.__nome
+    def get_categoria(self): return self.__categoria
+    def get_curso(self): return self.__curso
 
     def __str__(self):
-        return f"{self.nome} ({self.categoria} – {self.curso})"
+        return f"{self.__nome} ({self.__categoria} - {self.__curso})"
 
 
 class Pagamento:
     def __init__(self, pessoa, valor):
-        self.pessoa = pessoa
-        self._valor = valor
-        self.data_hora = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        if not isinstance(pessoa, Pessoa):
+            raise TypeError("pessoa deve ser instancia de Pessoa.")
+        if valor <= 0:
+            raise ValueError("Valor do pagamento deve ser positivo.")
 
-    def get_valor(self):
-        return self._valor
+        self.__pessoa = pessoa
+        self.__valor = valor
+        self.__data_hora = datetime.now() 
+
+    def get_pessoa(self): return self.__pessoa
+    def get_valor(self): return self.__valor
+    def get_data_hora(self): return self.__data_hora
 
     def __str__(self):
-        return (f"👤 {self.pessoa} | "
-                f"💰 R${self._valor:.2f} | "
-                f"🕐 {self.data_hora}")
+        data_formatada = self.__data_hora.strftime("%d/%m/%Y %H:%M:%S")
+        return f"{self.__pessoa} | R${self.__valor:.2f} | {data_formatada}"
 
 
-class NoPilha:
+class _NoPilha:
     def __init__(self, pagamento):
         self.pagamento = pagamento
         self.abaixo = None
@@ -34,64 +44,57 @@ class NoPilha:
 
 class PilhaPagamentos:
     def __init__(self):
-        self.topo = None
-        self.tamanho = 0
-        self.total_arrecadado = 0.0
+        self.__topo = None
+        self.__tamanho = 0
+        self.__total_arrecadado = 0.0
 
     def empilhar(self, pagamento):
-        novo_no = NoPilha(pagamento)
-        novo_no.abaixo = self.topo
-        self.topo = novo_no
-        self.tamanho += 1
-        self.total_arrecadado += pagamento.get_valor()
-        print(f"✅ Pagamento registrado: {pagamento}")
+        if not isinstance(pagamento, Pagamento):
+            raise TypeError("Apenas objetos Pagamento podem ser empilhados.")
+
+        novo_no = _NoPilha(pagamento)
+        novo_no.abaixo = self.__topo
+        self.__topo = novo_no
+        self.__tamanho += 1
+        self.__total_arrecadado += pagamento.get_valor()
+
+        return True  
 
     def desempilhar(self):
-        if self.topo is None:
-            print("⚠️ Nenhum pagamento registrado.")
+        if self.__topo is None:
             return None
 
-        pagamento_removido = self.topo.pagamento
-        self.topo = self.topo.abaixo
-        self.tamanho -= 1
-        self.total_arrecadado -= pagamento_removido.get_valor()
+        pagamento_removido = self.__topo.pagamento
+        self.__topo = self.__topo.abaixo
+        self.__tamanho -= 1
+        self.__total_arrecadado -= pagamento_removido.get_valor()
 
-        print(f"↩️ Pagamento removido: {pagamento_removido}")
-        return pagamento_removido
+        return pagamento_removido  
 
     def espiar(self):
-        if self.topo is None:
-            print("⚠️ Pilha vazia.")
+        if self.__topo is None:
             return None
+        return self.__topo.pagamento
 
-        return self.topo.pagamento
+    def get_tamanho(self): return self.__tamanho
+    def get_total_arrecadado(self): return self.__total_arrecadado
 
     def exibir(self):
-        print("\n💳 REGISTROS DE PAGAMENTO (mais recente primeiro):")
-        print("-" * 70)
+        dados = []
 
-        if self.topo is None:
-            print("Nenhum pagamento registrado.")
-            return
-
-        atual = self.topo
-        posicao = 1
-
+        atual = self.__topo
         while atual is not None:
-            print(f"[{posicao}] {atual.pagamento}")
+            dados.append(atual.pagamento)
             atual = atual.abaixo
-            posicao += 1
 
-        print("-" * 70)
-        print(f"Total de pagamentos: {self.tamanho}")
-        print(f"Total arrecadado: R${self.total_arrecadado:.2f}")
+        return dados  
 
 
 if __name__ == "__main__":
 
-    print("=" * 70)
-    print("QUESTÃO 2 – CONTROLE DE PAGAMENTO")
-    print("=" * 70)
+    print("=" * 72)
+    print("QUESTAO 2 - CONTROLE DE PAGAMENTO")
+    print("=" * 72)
 
     pessoa1 = Pessoa("Vladimir", "aluno", "IA")
     pessoa2 = Pessoa("Orlando The Best", "professor", "ESG")
@@ -107,16 +110,27 @@ if __name__ == "__main__":
 
     pilha = PilhaPagamentos()
 
-    pilha.empilhar(pag1)
-    pilha.empilhar(pag2)
-    pilha.empilhar(pag3)
-    pilha.empilhar(pag4)
-    pilha.empilhar(pag5)
+    for pag in [pag1, pag2, pag3, pag4, pag5]:
+        pilha.empilhar(pag)
+        print(f"Pagamento registrado: {pag}")
 
-    pilha.exibir()
+    print("\nREGISTROS DE PAGAMENTO (mais recente primeiro):")
+    print("-" * 72)
+    for i, pagamento in enumerate(pilha.exibir(), 1):
+        print(f"[{i:02d}] {pagamento}")
 
-    print(f"\nÚltimo pagamento: {pilha.espiar()}")
+    print("-" * 72)
+    print(f"Total de pagamentos : {pilha.get_tamanho()}")
+    print(f"Total arrecadado    : R${pilha.get_total_arrecadado():.2f}")
 
-    pilha.desempilhar()
+    print(f"\nUltimo pagamento (topo): {pilha.espiar()}")
 
-    pilha.exibir()
+    print("\nEstornando ultimo pagamento...")
+    removido = pilha.desempilhar()
+    if removido:
+        print(f"Pagamento estornado: {removido}")
+
+    print("\nAtualizado:")
+    print("-" * 72)
+    for i, pagamento in enumerate(pilha.exibir(), 1):
+        print(f"[{i:02d}] {pagamento}")

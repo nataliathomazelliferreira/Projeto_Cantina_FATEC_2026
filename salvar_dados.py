@@ -1,125 +1,103 @@
-from datetime import datetime
+#questão 5
 import pickle
 import os
+from datetime import datetime
 
-class Produto:
-    def __init__(self, nome, preco_compra, preco_venda, data_compra, data_vencimento, quantidade):
-        self.nome = nome
-        self.preco_compra = preco_compra
-        self.preco_venda = preco_venda
-        self.data_compra = data_compra
-        self.data_vencimento = data_vencimento
-        self.quantidade = quantidade
-
-    def __str__(self):
-        return f"{self.nome} | R${self.preco_venda:.2f} | Qtd: {self.quantidade}"
-
-
-class Pagamento:
-    def __init__(self, nome_pessoa, categoria, valor, data_hora):
-        self.nome_pessoa = nome_pessoa
-        self.categoria = categoria
-        self.valor = valor
-        self.data_hora = data_hora
-
-    def __str__(self):
-        return f"{self.nome_pessoa} ({self.categoria}) | R${self.valor:.2f} | {self.data_hora}"
-
-
-class No:
-    def __init__(self, dado):
-        self.dado = dado
-        self.proximo = None
-
-
-class ListaEncadeada:
-    def __init__(self, nome=""):
-        self.cabeca = None
-        self.tamanho = 0
-        self.nome = nome
-
-    def adicionar(self, dado):
-        novo = No(dado)
-
-        if self.cabeca is None:
-            self.cabeca = novo
-        else:
-            atual = self.cabeca
-            while atual.proximo:
-                atual = atual.proximo
-            atual.proximo = novo
-
-        self.tamanho += 1
-
-    def exibir(self):
-        print(f"\n📋 {self.nome} ({self.tamanho}):")
-
-        atual = self.cabeca
-        i = 1
-
-        while atual:
-            print(f"[{i}] {atual.dado}")
-            atual = atual.proximo
-            i += 1
+from questao4 import (
+    gerar_pessoas,
+    gerar_produtos,
+    gerar_pagamentos,
+)
 
 
 class Snapshot:
-    def __init__(self, descricao, estoque, pagamentos):
-        self.descricao = descricao
-        self.criado_em = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-        self.estoque = estoque
-        self.pagamentos = pagamentos
+    def __init__(self, descricao, pessoas, produtos, pagamentos):
+        self.__descricao = descricao
+        self.__criado_em = datetime.now()
+        self.__pessoas = pessoas
+        self.__produtos = produtos
+        self.__pagamentos = pagamentos
+
+    def get_descricao(self): return self.__descricao
+    def get_criado_em(self): return self.__criado_em
+    def get_pessoas(self): return self.__pessoas
+    def get_produtos(self): return self.__produtos
+    def get_pagamentos(self): return self.__pagamentos
 
     def __str__(self):
-        return f"{self.descricao} | {self.criado_em}"
+        return f"[Snapshot] {self.__descricao} | Criado em: {self.__criado_em.strftime('%d/%m/%Y %H:%M:%S')}"
 
 
-def salvar(obj, arquivo):
-    try:
-        with open(arquivo, "wb") as f:
-            pickle.dump(obj, f)
-        print("Dados salvos")
-    except:
-        print("Erro ao salvar")
+class GerenciadorArquivo:
+    @staticmethod
+    def salvar(obj, caminho):
+        try:
+            pasta = os.path.dirname(caminho)
+            if pasta and not os.path.exists(pasta):
+                os.makedirs(pasta)
 
+            with open(caminho, "wb") as f:
+                pickle.dump(obj, f)
+            return True
+        except (OSError, pickle.PicklingError):
+            return False
 
-def carregar(arquivo):
-    if not os.path.exists(arquivo):
-        print("Arquivo não existe")
-        return None
-
-    try:
-        with open(arquivo, "rb") as f:
-            return pickle.load(f)
-    except:
-        print("Erro ao carregar")
-        return None
+    @staticmethod
+    def carregar(caminho):
+        if not os.path.exists(caminho):
+            return None
+        try:
+            with open(caminho, "rb") as f:
+                return pickle.load(f)
+        except (OSError, pickle.UnpicklingError):
+            return None
 
 
 if __name__ == "__main__":
 
-    estoque = ListaEncadeada("Estoque")
+    print("=" * 72)
+    print("QUESTAO 5 - PERSISTENCIA DE DADOS - CANTINA FATEC")
+    print("=" * 72)
 
-    estoque.adicionar(Produto("Água com gás do Orlando", 2.5, 3.5, "", "", 12))
-    estoque.adicionar(Produto("Coca 200ml", 2, 3, "", "", 12))
-    estoque.adicionar(Produto("Bonbon", 1, 1.5, "", "", 40))
+    print("\nGerando dados via Questao 4...")
+    pessoas = gerar_pessoas(5)
+    produtos = gerar_produtos(5)
+    pagamentos = gerar_pagamentos(pessoas, produtos, 8)
 
-    pagamentos = ListaEncadeada("Pagamentos")
-
-    pagamentos.adicionar(Pagamento("Vladimir", "aluno", 3.0, "25/03/2026"))
-    pagamentos.adicionar(Pagamento("Debora", "aluno", 6.0, "25/03/2026"))
-
-    estoque.exibir()
+    pessoas.exibir()
+    produtos.exibir()
     pagamentos.exibir()
 
-    snap = Snapshot("Backup inicial", estoque, pagamentos)
+    snap = Snapshot("Backup inicial", pessoas, produtos, pagamentos)
+    print(f"\n{snap}")
 
-    salvar(snap, "dados_cantina.pkl")
+    if GerenciadorArquivo.salvar(snap, "data/dados_cantina.pkl"):
+        print("Dados salvos com sucesso.")
 
-    print("\nCarregando dados...\n")
+    print("\n" + "=" * 72)
+    print("Simulando reinicio do sistema - carregando dados do disco...")
+    print("=" * 72)
 
-    dados = carregar("dados_cantina.pkl")
+    dados = GerenciadorArquivo.carregar("data/dados_cantina.pkl")
 
     if dados:
-        dados.estoque.exibir()
-        dados.pagamentos.exibir()
+        print(f"\nSnapshot recuperado: {dados}")
+        dados.get_pessoas().exibir()
+        dados.get_produtos().exibir()
+        dados.get_pagamentos().exibir()
+
+    print("\nGerando segundo snapshot com novos produtos...")
+    novos_produtos = gerar_produtos(3)
+    novos_pagamentos = gerar_pagamentos(pessoas, novos_produtos, 4)
+
+    snap2 = Snapshot("Segundo turno", pessoas, novos_produtos, novos_pagamentos)
+
+    if GerenciadorArquivo.salvar(snap2, "data/dados_cantina_v2.pkl"):
+        print("Segundo snapshot salvo com sucesso.")
+
+    dados2 = GerenciadorArquivo.carregar("data/dados_cantina_v2.pkl")
+
+    if dados2:
+        print(f"\nSegundo snapshot recuperado: {dados2}")
+        dados2.get_produtos().exibir()
+        dados2.get_pagamentos().exibir()
